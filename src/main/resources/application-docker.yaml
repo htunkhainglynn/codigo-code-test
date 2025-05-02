@@ -16,7 +16,7 @@ spring:
         database-platform: org.hibernate.dialect.PostgreSQLDialect
     data:
         redis:
-            host: localhost
+            host: codigo-redis
             port: 6379
 security:
     unauthorizedUrls:

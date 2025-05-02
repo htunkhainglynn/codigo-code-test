@@ -17,6 +17,7 @@ import com.codigo.code.test.service.BookingService;
 import com.codigo.code.test.utils.ResponseBuilder;
 import com.codigo.code.test.utils.SecurityContextUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,7 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepo;
@@ -51,35 +53,41 @@ public class BookingServiceImpl implements BookingService {
 
             // 1. Check credit for the course's country
             String countryCode = course.getCountry().getCountryCode();
+            log.info("Booking course {} for user {} in country {}", course.getId(), username, countryCode);
 
             UserCredit userCredit = userCreditRepo.findByUsernameAndCountryCode(username, countryCode).orElseThrow(
                     () -> new ApplicationException("User credit not found", HttpStatus.NOT_FOUND));
 
             if (userCredit.getRemainingCredits() < course.getCredit()) {
+                log.error("Insufficient credits for user {}: required {}, available {}", username, course.getCredit(), userCredit.getRemainingCredits());
                 throw new ApplicationException("Insufficient credits", HttpStatus.BAD_REQUEST);
             }
 
             if (userCredit.getExpiredDate().isBefore(LocalDate.now())) {
+                log.error("Credit expired for user {}: expired date {}", username, userCredit.getExpiredDate());
                 throw new ApplicationException("Credit expired", HttpStatus.BAD_REQUEST);
             }
 
             // 2. Check for time conflict
             List<Booking> userBookings = bookingRepo.findByUsername(username);
-            for (Booking b : userBookings) {
-                Course existingCourse = b.getCourse();
-                boolean overlaps = timeOverlap(
-                        course.getStartTime(), course.getEndTime(),
-                        existingCourse.getStartTime(), existingCourse.getEndTime()
-                );
-                if (overlaps) {
-                    throw new ApplicationException("Booking time conflicts with another class", HttpStatus.BAD_REQUEST);
-                }
-            }
+            userBookings.stream().filter(b -> BookingStatus.PENDING == b.getStatus() || BookingStatus.BOOKED == b.getStatus())
+                    .forEach(b -> {
+                        Course existingCourse = b.getCourse();
+                        boolean overlaps = timeOverlap(
+                                course.getStartTime(), course.getEndTime(),
+                                existingCourse.getStartTime(), existingCourse.getEndTime()
+                        );
+                        if (overlaps) {
+                            throw new ApplicationException("Booking time conflicts with another class", HttpStatus.BAD_REQUEST);
+                        }
+                    });
 
             Response response;
 
             // 3. use redis to handle concurrency
             String status = redisService.checkSlot(course.getId().toString());
+            log.info("Redis status for course {}: {}", course.getId(), status);
+
             try{
                 if (BookingStatus.BOOKED.toString().equalsIgnoreCase(status)) {
                     course.setSlot(course.getSlot() - 1);
@@ -96,6 +104,7 @@ public class BookingServiceImpl implements BookingService {
                 return response;
 
         } catch (Exception e) {
+            log.error("Error booking course: {}", e.getMessage());
             throw new ApplicationException("Error occurred while booking", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -111,12 +120,14 @@ public class BookingServiceImpl implements BookingService {
                     .orElseThrow(() -> new ApplicationException("Booking not found", HttpStatus.NOT_FOUND));
 
             if (booking.getStatus() == BookingStatus.CANCELLED) {
+                log.error("Booking already canceled: {}", bookingId);
                 throw new ApplicationException("Booking already canceled", HttpStatus.BAD_REQUEST);
             }
 
             // Refund logic (only within 4 hours)
             if (Duration.between(booking.getBookingDate(), LocalDateTime.now()).toHours() <= 4
                     && (booking.getStatus() == BookingStatus.BOOKED || booking.getStatus() == BookingStatus.PENDING)) {
+                log.info("Refunding booking {} for user {}", bookingId, username);
 
                 Course course = booking.getCourse();
                 String countryCode = course.getCountry().getCountryCode();
@@ -125,6 +136,10 @@ public class BookingServiceImpl implements BookingService {
                         () -> new ApplicationException("User credit not found", HttpStatus.NOT_FOUND));
                 userCredit.setRemainingCredits(userCredit.getRemainingCredits() + course.getCredit());
                 userCreditRepo.save(userCredit);
+
+                booking.setStatus(BookingStatus.REFUNDED);
+                booking.setModifiedDate(LocalDateTime.now());
+                bookingRepo.save(booking);
 
                 // Promote the earliest pending booking
                 Optional<Booking> pendingBooking = bookingRepo
@@ -138,6 +153,7 @@ public class BookingServiceImpl implements BookingService {
                 }
             }
 
+            log.info("Cancelling booking {} for user {}", bookingId, username);
             booking.setStatus(BookingStatus.CANCELLED);
             booking.setModifiedDate(LocalDateTime.now());
             bookingRepo.save(booking);
@@ -147,6 +163,7 @@ public class BookingServiceImpl implements BookingService {
                     .withHttpStatus(HttpStatus.OK)
                     .build();
         } catch (Exception e) {
+            log.error("Error canceling booking: {}", e.getMessage());
             throw new ApplicationException("Error occurred while canceling booking", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

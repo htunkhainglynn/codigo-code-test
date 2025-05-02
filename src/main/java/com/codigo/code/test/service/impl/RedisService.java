@@ -2,6 +2,7 @@ package com.codigo.code.test.service.impl;
 
 import com.codigo.code.test.exception.ApplicationException;
 import com.codigo.code.test.service.CacheService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import java.time.Duration;
 import java.util.List;
 
 @Service
+@Slf4j
 public class RedisService implements CacheService {
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -23,6 +25,7 @@ public class RedisService implements CacheService {
         try {
             redisTemplate.opsForValue().set(key, value, Duration.ofMinutes(ttlInMin));
         } catch (Exception e) {
+            log.error("Error setting redis value {}", e.getMessage());
             throw new ApplicationException("Error setting value in Redis", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -32,6 +35,7 @@ public class RedisService implements CacheService {
         try {
             return redisTemplate.opsForValue().get(key);
         } catch (Exception e) {
+            log.error("Error getting redis value {}", e.getMessage());
             throw new ApplicationException("Error setting value in Redis", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

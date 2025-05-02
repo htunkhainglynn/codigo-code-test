@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -120,12 +121,10 @@ public class PackageServiceImpl implements PackageService {
         Package packageEntity = packageRepository.findById(req.id())
                 .orElseThrow(() -> new ApplicationException("Package not found", HttpStatus.NOT_FOUND));
 
-        UserCredit userCredit = userCreditRepository.findByUsernameAndCountryCode(
-                username, packageEntity.getCountry().getCountryCode()).orElseThrow(
-                () -> new ApplicationException("User credit not found", HttpStatus.NOT_FOUND)
-        );
+        Optional<UserCredit> userCredit = userCreditRepository.findByUsernameAndCountryCode(
+                username, packageEntity.getCountry().getCountryCode());
 
-        if (userCredit == null) {
+        if (userCredit.isEmpty()) {
             UserCredit newUserCredit = new UserCredit();
             newUserCredit.setUser(userRepository.getReferenceByUsername(username)
                     .orElseThrow(() -> new ApplicationException("User not found", HttpStatus.NOT_FOUND)));
@@ -134,9 +133,10 @@ public class PackageServiceImpl implements PackageService {
             newUserCredit.setExpiredDate(LocalDate.now().plusDays(packageEntity.getExpiredDateCount()));
             userCreditRepository.save(newUserCredit);
         } else {
-            userCredit.setRemainingCredits(userCredit.getRemainingCredits() + packageEntity.getCredit());
-            userCredit.setExpiredDate(userCredit.getExpiredDate().plusDays(packageEntity.getExpiredDateCount()));
-            userCreditRepository.save(userCredit);
+            UserCredit uc = userCredit.get();
+            uc.setRemainingCredits(uc.getRemainingCredits() + packageEntity.getCredit());
+            uc.setExpiredDate(uc.getExpiredDate().plusDays(packageEntity.getExpiredDateCount()));
+            userCreditRepository.save(uc);
         }
 
         UserPackage userPackage = new UserPackage();
