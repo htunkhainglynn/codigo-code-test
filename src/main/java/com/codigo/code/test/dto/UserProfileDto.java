@@ -1,6 +1,8 @@
 package com.codigo.code.test.dto;
 
 
+import com.codigo.code.test.dto.response.CourseDto;
+
 import java.util.List;
 
 public record UserProfileDto(
@@ -9,7 +11,9 @@ public record UserProfileDto(
 
         List<PackageDto> userPackages,
 
-        List<UserCreditDto> userCredits
+        List<UserCreditDto> userCredits,
+
+        List<CourseDto> courses
 
 ) {
 }

@@ -4,7 +4,9 @@ import com.codigo.code.test.dto.PackageDto;
 import com.codigo.code.test.dto.UserCreditDto;
 import com.codigo.code.test.dto.UserProfileDto;
 import com.codigo.code.test.dto.request.ResetPwRequest;
+import com.codigo.code.test.dto.response.CourseDto;
 import com.codigo.code.test.dto.response.Response;
+import com.codigo.code.test.entity.BookingStatus;
 import com.codigo.code.test.entity.Package;
 import com.codigo.code.test.entity.User;
 import com.codigo.code.test.entity.UserPackage;
@@ -57,8 +59,12 @@ public class UserServiceImpl implements UserService {
             List<UserCreditDto> userCreditDtos = user.getUserCredits().stream()
                     .map(userCredit -> new UserCreditDto(userCredit.getCountry().getCountryCode(), userCredit.getRemainingCredits(), userCredit.getExpiredDate())).toList();
 
+            List<CourseDto> courseDtos = user.getBookings().stream()
+                    .filter(booking -> booking.getStatus() == BookingStatus.BOOKED || booking.getStatus() == BookingStatus.PENDING)
+                    .map(booking -> new CourseDto(booking.getCourse()))
+                    .toList();
 
-            UserProfileDto userProfileDto = new UserProfileDto(user.getName(), user.getUsername(), packageDtos, userCreditDtos);
+            UserProfileDto userProfileDto = new UserProfileDto(user.getName(), user.getUsername(), packageDtos, userCreditDtos, courseDtos);
 
             return ResponseBuilder
                     .newBuilder()

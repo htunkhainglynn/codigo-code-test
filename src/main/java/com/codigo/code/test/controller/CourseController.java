@@ -26,7 +26,7 @@ public class CourseController {
          return ok(courseService.getCourseById(id));
      }
 
-     @GetMapping("/{countryCode}")
+     @GetMapping("/country/{countryCode}")
      public ResponseEntity<Response> getCoursesByCountry(@PathVariable String countryCode) {
          return ok(courseService.getCoursesByCountryCode(countryCode));
      }

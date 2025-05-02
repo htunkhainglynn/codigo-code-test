@@ -1,10 +1,7 @@
 package com.codigo.code.test.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +28,7 @@ public class Package {
     @JoinColumn(name = "country_code", referencedColumnName = "countryCode")
     private Country country;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "pkg", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserPackage> userPackages = new ArrayList<>();
 }

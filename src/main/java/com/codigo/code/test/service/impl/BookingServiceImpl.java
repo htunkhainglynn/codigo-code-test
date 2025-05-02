@@ -2,6 +2,7 @@ package com.codigo.code.test.service.impl;
 
 import com.codigo.code.test.dto.request.BookingCancelRequest;
 import com.codigo.code.test.dto.request.BookingRequest;
+import com.codigo.code.test.dto.response.BookingDto;
 import com.codigo.code.test.dto.response.Response;
 import com.codigo.code.test.entity.Booking;
 import com.codigo.code.test.entity.BookingStatus;
@@ -41,7 +42,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     @Override
     public Response book(BookingRequest bookingRequest) {
-        try {
+
             // Fetch course
             Course course = courseRepo.findById(bookingRequest.courseId())
                     .orElseThrow(() -> new ApplicationException("Course not found", HttpStatus.NOT_FOUND));
@@ -51,7 +52,8 @@ public class BookingServiceImpl implements BookingService {
             // 1. Check credit for the course's country
             String countryCode = course.getCountry().getCountryCode();
 
-            UserCredit userCredit = userCreditRepo.findByUsernameAndCountryCode(username, countryCode);
+            UserCredit userCredit = userCreditRepo.findByUsernameAndCountryCode(username, countryCode).orElseThrow(
+                    () -> new ApplicationException("User credit not found", HttpStatus.NOT_FOUND));
 
             if (userCredit.getRemainingCredits() < course.getCredit()) {
                 throw new ApplicationException("Insufficient credits", HttpStatus.BAD_REQUEST);
@@ -78,20 +80,21 @@ public class BookingServiceImpl implements BookingService {
 
             // 3. use redis to handle concurrency
             String status = redisService.checkSlot(course.getId().toString());
+            try{
+                if (BookingStatus.BOOKED.toString().equalsIgnoreCase(status)) {
+                    course.setSlot(course.getSlot() - 1);
+                    courseRepo.save(course);
+                    response = saveBooking(username, course, BookingStatus.BOOKED);
+                } else {
+                    response = saveBooking(username, course, BookingStatus.PENDING);
+                }
 
-            if (BookingStatus.BOOKED.toString().equalsIgnoreCase(status)) {
-                course.setSlot(course.getSlot() - 1);
-                courseRepo.save(course);
-                response = saveBooking(username, course, BookingStatus.BOOKED);
-            } else {
-                response = saveBooking(username, course, BookingStatus.PENDING);
-            }
+                // 4. Decrease credit
+                userCredit.setRemainingCredits(userCredit.getRemainingCredits() - course.getCredit());
+                userCreditRepo.save(userCredit);
 
-            // 4. Decrease credit
-            userCredit.setRemainingCredits(userCredit.getRemainingCredits() - course.getCredit());
-            userCreditRepo.save(userCredit);
+                return response;
 
-            return response;
         } catch (Exception e) {
             throw new ApplicationException("Error occurred while booking", HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -104,30 +107,31 @@ public class BookingServiceImpl implements BookingService {
             String username = securityContext.getUsername();
             Long bookingId = cancelRequest.bookingId();
 
-            Booking booking = (Booking) bookingRepo.findByIdAndUsername(bookingId, username)
+            Booking booking = bookingRepo.findByIdAndUsername(bookingId, username)
                     .orElseThrow(() -> new ApplicationException("Booking not found", HttpStatus.NOT_FOUND));
 
             if (booking.getStatus() == BookingStatus.CANCELLED) {
                 throw new ApplicationException("Booking already canceled", HttpStatus.BAD_REQUEST);
             }
 
-            booking.setStatus(BookingStatus.CANCELLED);
-            booking.setModifiedDate(LocalDateTime.now());
-            bookingRepo.save(booking);
-
             // Refund logic (only within 4 hours)
             if (Duration.between(booking.getBookingDate(), LocalDateTime.now()).toHours() <= 4
-                    && booking.getStatus() == BookingStatus.BOOKED) {
+                    && (booking.getStatus() == BookingStatus.BOOKED || booking.getStatus() == BookingStatus.PENDING)) {
 
                 Course course = booking.getCourse();
                 String countryCode = course.getCountry().getCountryCode();
 
-                UserCredit userCredit = userCreditRepo.findByUsernameAndCountryCode(username, countryCode);
+                UserCredit userCredit = userCreditRepo.findByUsernameAndCountryCode(username, countryCode).orElseThrow(
+                        () -> new ApplicationException("User credit not found", HttpStatus.NOT_FOUND));
                 userCredit.setRemainingCredits(userCredit.getRemainingCredits() + course.getCredit());
                 userCreditRepo.save(userCredit);
             }
 
-            // Promote earliest pending booking
+            booking.setStatus(BookingStatus.CANCELLED);
+            booking.setModifiedDate(LocalDateTime.now());
+            bookingRepo.save(booking);
+
+            // Promote the earliest pending booking
             Course course = booking.getCourse();
             Optional<Booking> pendingBooking = bookingRepo
                     .findFirstByCourseAndStatusOrderByBookingDateAsc(course, BookingStatus.PENDING);
@@ -157,12 +161,13 @@ public class BookingServiceImpl implements BookingService {
                 .status(saveBooking)
                 .bookingDate(LocalDateTime.now())
                 .modifiedDate(LocalDateTime.now())
+                .country(course.getCountry())
                 .build();
 
         booking = bookingRepo.save(booking);
 
         return ResponseBuilder.newBuilder()
-                .withData(booking)
+                .withData(new BookingDto(booking))
                 .withMessage("Course booked successfully").build();
     }
 

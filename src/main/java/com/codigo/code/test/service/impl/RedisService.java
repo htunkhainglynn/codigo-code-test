@@ -37,7 +37,7 @@ public class RedisService implements CacheService {
     }
 
     public String checkSlot(String courseId) {
-        String key = "course:" + courseId + ":slots";
+        String key = "course:" + courseId + ":available_slot";
         DefaultRedisScript<String> script = new DefaultRedisScript<>();
         script.setScriptText(
                 """

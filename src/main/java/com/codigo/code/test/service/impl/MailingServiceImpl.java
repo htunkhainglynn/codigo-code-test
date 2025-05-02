@@ -12,4 +12,9 @@ public class MailingServiceImpl implements MailingService {
                 resetLink + "\n\n" +
                 "If you didn't request this, please ignore this email.";
     }
+
+    @Override
+    public boolean sendVerifyEmail(String email, String verificationLink) {
+        return true;
+    }
 }

@@ -26,6 +26,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +43,9 @@ public class AuthServiceImpl implements AuthService {
     private final HttpServletRequest request;
     private final PasswordEncoder passwordEncoder;
     private final RedisService redisService;
+    private final MailingServiceImpl mailingService;
 
+    @Transactional(readOnly = true)
     @Override
     public Response authenticate(AuthRequest authRequest) {
         String username = authRequest.username();
@@ -80,9 +83,16 @@ public class AuthServiceImpl implements AuthService {
         redisService.set(redisKey, AccountStatus.ACTIVE.getStatus(), 60);
     }
 
+    @Transactional
     @Override
     public Response register(RegisterRequest registerRequest) {
         registerUserExistCheck(registerRequest.username());
+
+        if (mailingService.sendVerifyEmail(registerRequest.email(), "link")) {
+            log.info("Verification email sent to {}", registerRequest.email());
+        } else {
+            throw new ApplicationException("Error sending verification email", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
         UserDto userDto = UserDto.builder()
                 .name(registerRequest.name())

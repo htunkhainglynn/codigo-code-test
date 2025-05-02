@@ -20,6 +20,7 @@ public class CourseDto {
     private LocalTime startTime;
     private LocalTime endTime;
     private int slot;
+    private String countryCode;
 
     public CourseDto(Course course) {
         this.id = course.getId();
@@ -30,5 +31,6 @@ public class CourseDto {
         this.startTime = course.getStartTime();
         this.endTime = course.getEndTime();
         this.slot = course.getSlot();
+        this.countryCode = course.getCountry().getCountryCode();
     }
 }

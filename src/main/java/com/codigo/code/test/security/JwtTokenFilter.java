@@ -1,13 +1,10 @@
 package com.codigo.code.test.security;
 
 import com.codigo.code.test.config.SecurityProperties;
-import com.codigo.code.test.dto.response.Response;
 import com.codigo.code.test.enums.AccountStatus;
 import com.codigo.code.test.exception.AppExceptionHandler;
 import com.codigo.code.test.exception.ApplicationException;
 import com.codigo.code.test.service.impl.RedisService;
-import com.codigo.code.test.utils.ResponseBuilder;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,16 +12,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor

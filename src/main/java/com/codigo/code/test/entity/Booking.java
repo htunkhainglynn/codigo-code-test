@@ -16,6 +16,7 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ToString.Exclude
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id")
     private User user;

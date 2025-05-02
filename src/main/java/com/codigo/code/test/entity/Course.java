@@ -2,10 +2,7 @@ package com.codigo.code.test.entity;
 
 import com.codigo.code.test.dto.request.CourseRequest;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -36,6 +33,7 @@ public class Course {
 
     private int slot;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Booking> bookings = new ArrayList<>();
 

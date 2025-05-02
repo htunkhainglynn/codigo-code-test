@@ -121,7 +121,9 @@ public class PackageServiceImpl implements PackageService {
                 .orElseThrow(() -> new ApplicationException("Package not found", HttpStatus.NOT_FOUND));
 
         UserCredit userCredit = userCreditRepository.findByUsernameAndCountryCode(
-                username, packageEntity.getCountry().getCountryCode());
+                username, packageEntity.getCountry().getCountryCode()).orElseThrow(
+                () -> new ApplicationException("User credit not found", HttpStatus.NOT_FOUND)
+        );
 
         if (userCredit == null) {
             UserCredit newUserCredit = new UserCredit();

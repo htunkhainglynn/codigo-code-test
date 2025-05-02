@@ -17,5 +17,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long>, JpaSpec
 
     Optional<Booking> findFirstByCourseAndStatusOrderByBookingDateAsc(Course course, BookingStatus bookingStatus);
 
-    Optional<Object> findByIdAndUsername(Long bookingId, String username);
+    @Query("SELECT b FROM Booking b WHERE b.id = ?1 AND b.user.username = ?2")
+    Optional<Booking> findByIdAndUsername(Long bookingId, String username);
 }

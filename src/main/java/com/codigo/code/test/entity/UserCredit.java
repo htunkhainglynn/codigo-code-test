@@ -22,10 +22,9 @@ public class UserCredit {
     @JoinColumn(name = "country_code", referencedColumnName = "countryCode")
     private Country country;
 
+    @ToString.Exclude
     @ManyToOne(optional = false)
     @JoinColumn(name = "username", referencedColumnName = "username")
-    @ToString.Exclude
-    @JsonIgnore
     private User user;
 
 }
