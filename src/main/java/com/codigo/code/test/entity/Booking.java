@@ -18,8 +18,6 @@ public class Booking {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id")
-    @ToString.Exclude
-    @JsonIgnore
     private User user;
 
     @ManyToOne(optional = false)
@@ -32,5 +30,9 @@ public class Booking {
     private LocalDateTime bookingDate;
 
     private LocalDateTime modifiedDate;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "country_code", referencedColumnName = "countryCode")
+    private Country country;
 }
 

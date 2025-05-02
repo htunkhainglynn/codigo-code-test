@@ -10,4 +10,6 @@ public interface CourseService {
     Response createCourse(CourseRequest courseRequest);
     Response updateCourse(Long id, CourseRequest courseRequest);
     Response deleteCourse(Long id);
+
+    Response getCoursesByCountryCode(String countryCode);
 }

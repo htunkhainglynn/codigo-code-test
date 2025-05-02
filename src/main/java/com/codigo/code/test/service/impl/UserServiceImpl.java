@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
                     .toList();
 
             List<UserCreditDto> userCreditDtos = user.getUserCredits().stream()
-                    .map(userCredit -> new UserCreditDto(userCredit.getCountry().getCountryCode(), userCredit.getRemainingCredits(), userCredit.getExpiredDateCount())).toList();
+                    .map(userCredit -> new UserCreditDto(userCredit.getCountry().getCountryCode(), userCredit.getRemainingCredits(), userCredit.getExpiredDate())).toList();
 
 
             UserProfileDto userProfileDto = new UserProfileDto(user.getName(), user.getUsername(), packageDtos, userCreditDtos);

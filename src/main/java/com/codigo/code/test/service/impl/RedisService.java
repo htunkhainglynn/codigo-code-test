@@ -3,10 +3,12 @@ package com.codigo.code.test.service.impl;
 import com.codigo.code.test.exception.ApplicationException;
 import com.codigo.code.test.service.CacheService;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.List;
 
 @Service
 public class RedisService implements CacheService {
@@ -34,6 +36,26 @@ public class RedisService implements CacheService {
         }
     }
 
+    public String checkSlot(String courseId) {
+        String key = "course:" + courseId + ":slots";
+        DefaultRedisScript<String> script = new DefaultRedisScript<>();
+        script.setScriptText(
+                """
+                    local key = KEYS[1]
+                    local slots = tonumber(redis.call("GET", key))
+                                          
+                    if slots and slots > 0 then
+                        redis.call("DECR", key)
+                        return "Booked"
+                    else
+                        return "Pending"
+                    end
+                                        
+                """
+        );
+        script.setResultType(String.class);
 
+        return redisTemplate.execute(script, List.of(key));
+    }
 
 }

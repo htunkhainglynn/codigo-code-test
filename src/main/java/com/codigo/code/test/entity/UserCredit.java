@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -16,7 +16,7 @@ public class UserCredit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private int remainingCredits;
-    private int expiredDateCount;
+    private LocalDate expiredDate;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "country_code", referencedColumnName = "countryCode")

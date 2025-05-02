@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -128,11 +129,11 @@ public class PackageServiceImpl implements PackageService {
                     .orElseThrow(() -> new ApplicationException("User not found", HttpStatus.NOT_FOUND)));
             newUserCredit.setCountry(packageEntity.getCountry());
             newUserCredit.setRemainingCredits(packageEntity.getCredit());
-            newUserCredit.setExpiredDateCount(packageEntity.getExpiredDateCount());
+            newUserCredit.setExpiredDate(LocalDate.now().plusDays(packageEntity.getExpiredDateCount()));
             userCreditRepository.save(newUserCredit);
         } else {
             userCredit.setRemainingCredits(userCredit.getRemainingCredits() + packageEntity.getCredit());
-            userCredit.setExpiredDateCount(userCredit.getExpiredDateCount() + packageEntity.getExpiredDateCount());
+            userCredit.setExpiredDate(userCredit.getExpiredDate().plusDays(packageEntity.getExpiredDateCount()));
             userCreditRepository.save(userCredit);
         }
 

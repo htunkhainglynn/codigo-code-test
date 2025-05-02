@@ -10,6 +10,7 @@ public record CourseRequest(
         LocalDate endDate,
         LocalTime startTime,
         LocalTime endTime,
-        int slot
+        int slot,
+        String countryCode
 ) {
 }

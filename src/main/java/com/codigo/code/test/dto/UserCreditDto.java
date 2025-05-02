@@ -1,9 +1,11 @@
 package com.codigo.code.test.dto;
 
+import java.time.LocalDate;
+
 public record UserCreditDto(
         String countryCode,
         int remainingCredit,
 
-        int expiredDateCount
+        LocalDate expireDate
 ) {
 }
