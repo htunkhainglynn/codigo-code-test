@@ -16,6 +16,7 @@ import com.codigo.code.test.utils.ObjectMapperUtil;
 import com.codigo.code.test.utils.ResponseBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,6 +33,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
@@ -45,6 +47,8 @@ public class AuthServiceImpl implements AuthService {
     public Response authenticate(AuthRequest authRequest) {
         String username = authRequest.username();
         String password = authRequest.password();
+
+        loginUserExistCheck(authRequest.username());
 
         try {
             Optional<User> userReference = this.userRepository.getReferenceByUsername(username);
@@ -78,16 +82,18 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Response register(RegisterRequest registerRequest) {
-        checkUserExistsInDB(registerRequest);
+        registerUserExistCheck(registerRequest.username());
 
         UserDto userDto = UserDto.builder()
                 .name(registerRequest.name())
                 .username(registerRequest.username())
                 .status(AccountStatus.ACTIVE.getStatus())
                 .roles(List.of(Role.USER))
+                .email(registerRequest.email())
                 .password(passwordEncoder.encode(registerRequest.password())).build();
 
         User user = saveUser(userDto);
+        log.info("Saved user {}", user);
 
         return ResponseBuilder
                 .newBuilder()
@@ -103,6 +109,7 @@ public class AuthServiceImpl implements AuthService {
         String redisKey = username + ":" + deviceId;
 
         redisService.set(redisKey, AccountStatus.INACTIVE.getStatus(), 60);
+
         return ResponseBuilder
                 .newBuilder()
                 .withMessage("User logged out successfully")
@@ -119,11 +126,25 @@ public class AuthServiceImpl implements AuthService {
     }
 
 
-    private void checkUserExistsInDB(RegisterRequest registerRequest) {
-        Optional<User> optionalUser = userRepository.getReferenceByUsername(registerRequest.username());
-
+    private void registerUserExistCheck(String username) {
+        Optional<User> optionalUser = getUserByUsername(username);
         if (optionalUser.isPresent()) {
             throw new ApplicationException("User already exists", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private void loginUserExistCheck(String username) {
+        Optional<User> optionalUser = getUserByUsername(username);
+        if (optionalUser.isEmpty()) {
+            throw new ApplicationException("Invalid username/email or password supplied", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private Optional<User> getUserByUsername(String username) {
+        try {
+            return userRepository.getReferenceByUsername(username);
+        } catch (Exception e) {
+            throw new ApplicationException("Error checking user existence", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

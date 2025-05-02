@@ -7,6 +7,9 @@ public record RegisterRequest(
         String username,
 
         @NonNull
+        String email,
+
+        @NonNull
         String password,
 
         @NonNull

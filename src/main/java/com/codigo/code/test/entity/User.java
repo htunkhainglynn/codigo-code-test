@@ -11,6 +11,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -30,6 +31,9 @@ public class User implements UserDetails {
     @Column(nullable = false, columnDefinition = "VARCHAR(255)")
     private String name;
 
+    @Column(nullable = false, columnDefinition = "VARCHAR(255)")
+    private String email;
+
     @Column(nullable = false, unique = true, columnDefinition = "VARCHAR(255)")
     private String username;
 
@@ -39,11 +43,23 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String status;
 
+    @Column(nullable = false)
+    private LocalDate createdDate;
+
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "role", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
     private List<Role> roles = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserPackage> userPackages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Booking> bookings = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<UserCredit> userCredits = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -78,5 +94,7 @@ public class User implements UserDetails {
         this.password = userDto.getPassword();
         this.status = userDto.getStatus();
         this.roles = userDto.getRoles();
+        this.createdDate = LocalDate.now();
+        this.email = userDto.getEmail();
     }
 }

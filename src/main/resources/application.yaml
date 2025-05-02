@@ -20,4 +20,6 @@ security:
         - /auth/register
     jwt:
         token:
-            expire-length: 3600000
+            expire-length: 360000000
+
+user-pw-reset-link: http://localhost:8081/reset-pw

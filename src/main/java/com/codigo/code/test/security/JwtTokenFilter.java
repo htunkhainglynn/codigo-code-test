@@ -3,6 +3,7 @@ package com.codigo.code.test.security;
 import com.codigo.code.test.config.SecurityProperties;
 import com.codigo.code.test.dto.response.Response;
 import com.codigo.code.test.enums.AccountStatus;
+import com.codigo.code.test.exception.AppExceptionHandler;
 import com.codigo.code.test.exception.ApplicationException;
 import com.codigo.code.test.service.impl.RedisService;
 import com.codigo.code.test.utils.ResponseBuilder;
@@ -19,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -33,7 +35,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private final RedisService redisService;
     private final SecurityProperties securityProperties;
 
-
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
@@ -41,29 +42,34 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             ServletException, IOException {
 
         log.info("unauthorized urls: {}", securityProperties.getUnauthorizedUrls().toString());
-        log.info("request uri: {}", request.getRequestURI());
 
         if (securityProperties.getUnauthorizedUrls().stream().anyMatch(url -> request.getRequestURI().equals(url))) {
+            log.info("Request URI: {} is in the unauthorized urls list", request.getRequestURI());
             filterChain.doFilter(request, response);
             return;
         }
 
         String token = jwtTokenProvider.resolveToken(request);
+        log.info("Token: {}", token);
+
         if (token != null && jwtTokenProvider.validateToken(token)) {
+            log.info("Token is valid");
+
             String status = checkStatusInRedis(jwtTokenProvider.getUsername(token), jwtTokenProvider.getDeviceId(token));
+            log.info("Status from Redis: {}", status);
 
             if (AccountStatus.INACTIVE.getStatus().equals(status)) {
                 SecurityContextHolder.clearContext();
-                sendErrorResponse(response, "Account is inactive", HttpStatus.UNAUTHORIZED);
+                AppExceptionHandler.sendErrorResponse(response, "Account is inactive", HttpStatus.UNAUTHORIZED);
                 return;
             }
 
             Authentication auth = jwtTokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(auth);
-
+            log.info("Authentication successful for user: {}", jwtTokenProvider.getUsername(token));
         } else {
             SecurityContextHolder.clearContext();
-            sendErrorResponse(response, "Invalid JWT token", HttpStatus.UNAUTHORIZED);
+            AppExceptionHandler.sendErrorResponse(response, "Invalid JWT token", HttpStatus.UNAUTHORIZED);
             return;
         }
         filterChain.doFilter(request, response);
@@ -76,18 +82,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             throw new ApplicationException("Error checking status in Redis", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    private void sendErrorResponse(HttpServletResponse response, String message, HttpStatus statusCode) throws IOException {
-        response.setStatus(statusCode.value());
-        response.setContentType("application/json");
-        Response body = ResponseBuilder
-                .newBuilder()
-                .withMessage(message)
-                .withHttpStatus(statusCode)
-                .build();
-
-        response.getWriter().write(new ObjectMapper().writeValueAsString(body));
     }
 }
 
