@@ -27,3 +27,5 @@ user-pw-reset-link: http://localhost:8081/reset-pw
 redis:
     expiration:
         time: 60
+
+

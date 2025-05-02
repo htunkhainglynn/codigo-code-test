@@ -125,23 +125,22 @@ public class BookingServiceImpl implements BookingService {
                         () -> new ApplicationException("User credit not found", HttpStatus.NOT_FOUND));
                 userCredit.setRemainingCredits(userCredit.getRemainingCredits() + course.getCredit());
                 userCreditRepo.save(userCredit);
+
+                // Promote the earliest pending booking
+                Optional<Booking> pendingBooking = bookingRepo
+                        .findFirstByCourseAndStatusOrderByBookingDateAsc(course, BookingStatus.PENDING);
+
+                if (pendingBooking.isPresent()) {
+                    Booking toPromote = pendingBooking.get();
+                    toPromote.setStatus(BookingStatus.BOOKED);
+                    toPromote.setModifiedDate(LocalDateTime.now());
+                    bookingRepo.save(toPromote);
+                }
             }
 
             booking.setStatus(BookingStatus.CANCELLED);
             booking.setModifiedDate(LocalDateTime.now());
             bookingRepo.save(booking);
-
-            // Promote the earliest pending booking
-            Course course = booking.getCourse();
-            Optional<Booking> pendingBooking = bookingRepo
-                    .findFirstByCourseAndStatusOrderByBookingDateAsc(course, BookingStatus.PENDING);
-
-            if (pendingBooking.isPresent()) {
-                Booking toPromote = pendingBooking.get();
-                toPromote.setStatus(BookingStatus.BOOKED);
-                toPromote.setModifiedDate(LocalDateTime.now());
-                bookingRepo.save(toPromote);
-            }
 
             return ResponseBuilder.newBuilder()
                     .withMessage("Booking canceled successfully")

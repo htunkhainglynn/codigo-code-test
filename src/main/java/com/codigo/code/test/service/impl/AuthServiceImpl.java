@@ -11,8 +11,6 @@ import com.codigo.code.test.exception.ApplicationException;
 import com.codigo.code.test.repo.UserRepository;
 import com.codigo.code.test.security.JwtTokenProvider;
 import com.codigo.code.test.service.AuthService;
-import com.codigo.code.test.service.MyUserDetails;
-import com.codigo.code.test.utils.ObjectMapperUtil;
 import com.codigo.code.test.utils.ResponseBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -23,14 +21,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-
 
 @Service
 @RequiredArgsConstructor
@@ -134,7 +130,6 @@ public class AuthServiceImpl implements AuthService {
             throw new ApplicationException("Error saving user", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     private void registerUserExistCheck(String username) {
         Optional<User> optionalUser = getUserByUsername(username);

@@ -9,7 +9,6 @@ import com.codigo.code.test.dto.response.Response;
 import com.codigo.code.test.entity.BookingStatus;
 import com.codigo.code.test.entity.Package;
 import com.codigo.code.test.entity.User;
-import com.codigo.code.test.entity.UserPackage;
 import com.codigo.code.test.exception.ApplicationException;
 import com.codigo.code.test.repo.UserRepository;
 import com.codigo.code.test.security.JwtTokenProvider;
