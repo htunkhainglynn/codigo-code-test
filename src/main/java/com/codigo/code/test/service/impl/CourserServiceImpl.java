@@ -67,9 +67,9 @@ public class CourserServiceImpl implements CourseService {
     @Transactional
     @Override
     public Response createCourse(CourseRequest courseRequest) {
+        Country country = (Country) countryRepo.findByCountryCode(courseRequest.countryCode())
+                .orElseThrow(() -> new ApplicationException("Country not found", HttpStatus.NOT_FOUND));
         try {
-            Country country = (Country) countryRepo.findByCountryCode(courseRequest.countryCode())
-                    .orElseThrow(() -> new ApplicationException("Country not found", HttpStatus.NOT_FOUND));
             Course course = new Course(courseRequest, country);
             log.info("Course {}", course);
 
