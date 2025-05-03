@@ -6,6 +6,7 @@ import com.codigo.code.test.dto.response.Response;
 import com.codigo.code.test.service.impl.PackageServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.ResponseEntity.ok;
@@ -28,12 +29,12 @@ public class PackageController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Response> createPackage(@RequestBody PackageDto packageDto) {
+    public ResponseEntity<Response> createPackage(@RequestBody @Validated PackageDto packageDto) {
         return ok(packageService.createPackage(packageDto));
     }
 
     @PostMapping("/purchase")
-    public ResponseEntity<Response> purchasePackage(@RequestBody PackagePurchaseRequest req) {
+    public ResponseEntity<Response> purchasePackage(@RequestBody @Validated PackagePurchaseRequest req) {
         return ok(packageService.purchasePackage(req));
     }
 }

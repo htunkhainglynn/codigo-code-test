@@ -5,6 +5,7 @@ import com.codigo.code.test.dto.response.Response;
 import com.codigo.code.test.service.CountryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +21,7 @@ public class CountryController {
     private final CountryService countryService;
 
     @PostMapping("/create")
-    public ResponseEntity<Response> createCountry(@RequestBody CountryRequest countryRequest) {
+    public ResponseEntity<Response> createCountry(@RequestBody @Validated CountryRequest countryRequest) {
         return ok(countryService.createCountry(countryRequest.countryCode(), countryRequest.countryName()));
     }
 }

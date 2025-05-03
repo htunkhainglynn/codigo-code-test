@@ -38,8 +38,7 @@ public class SecurityConfig {
         http.sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.authorizeHttpRequests(request -> request
-                .requestMatchers(securityProperties.getUnauthorizedUrls().toArray(new String[0])).permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()  // Let all requests pass, and handle auth manually in the filter
         );
 
         http.addFilterBefore(new JwtTokenFilter(jwtTokenProvider, redisService, securityProperties), UsernamePasswordAuthenticationFilter.class);

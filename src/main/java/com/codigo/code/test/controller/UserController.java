@@ -5,6 +5,7 @@ import com.codigo.code.test.dto.response.Response;
 import com.codigo.code.test.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.ResponseEntity.ok;
@@ -22,7 +23,7 @@ public class UserController {
     }
 
     @PostMapping("/change-password")
-    public ResponseEntity<Response> changePassword(@RequestBody String password) {
+    public ResponseEntity<Response> changePassword(@RequestBody @Validated String password) {
         return ok(userService.changePassword(password));
     }
 
@@ -33,7 +34,7 @@ public class UserController {
 
     @PostMapping("/reset-pw/{token}")
     public ResponseEntity<Response> resetPassword(@PathVariable String token,
-                                                  @RequestBody ResetPwRequest request) {
+                                                  @RequestBody @Validated ResetPwRequest request) {
         return ok(userService.resetPassword(token, request));
     }
 }

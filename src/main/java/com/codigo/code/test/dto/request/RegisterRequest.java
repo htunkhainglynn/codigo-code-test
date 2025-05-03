@@ -1,17 +1,18 @@
 package com.codigo.code.test.dto.request;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
 
 public record RegisterRequest(
-        @NonNull
+        @NotNull(message = "Username cannot be null")
         String username,
 
-        @NonNull
+        @NotNull(message = "Email cannot be null")
         String email,
 
-        @NonNull
+        @NotNull(message = "Password cannot be null")
         String password,
 
-        @NonNull
+        @NotNull(message = "Name cannot be null")
         String name
 ) { }

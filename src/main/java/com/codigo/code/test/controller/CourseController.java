@@ -5,6 +5,7 @@ import com.codigo.code.test.dto.response.Response;
 import com.codigo.code.test.service.impl.CourserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.ResponseEntity.ok;
@@ -33,7 +34,7 @@ public class CourseController {
 
 
      @PostMapping("/create")
-     public ResponseEntity<Response> createCourse(@RequestBody CourseRequest courseRequest) {
+     public ResponseEntity<Response> createCourse(@RequestBody @Validated CourseRequest courseRequest) {
          return ok(courseService.createCourse(courseRequest));
      }
 }
