@@ -301,7 +301,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"name\": \"Java 101\",\n    \"description\": \"Java Basic\",\n    \"credit\": 5,\n    \"endDate\": \"2025-06-30\",\n    \"startTime\": \"07:00:00\",\n    \"endTime\": \"08:30:00\",\n    \"slot\": 0,\n    \"countryCode\": \"SG\"\n}\n",
+					"raw": "{\n    \"name\": \"Java 101\",\n    \"description\": \"Java Basic\",\n    \"credit\": 5,\n    \"endDate\": \"2025-06-30\",\n    \"startTime\": \"07:00:00\",\n    \"endTime\": \"08:30:00\",\n    \"slot\": 30,\n    \"countryCode\": \"SG\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
