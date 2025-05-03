@@ -14,7 +14,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"name\": \"HKL\",\n    \"username\": \"hkl\",\n    \"email\": \"hkl@test.com\",\n    \"password\": 123\n}",
+					"raw": "{\n    \"name\": \"HKL4\",\n    \"username\": \"hkl4\",\n    \"email\": \"hkl4@test.com\",\n    \"password\": 123\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -77,7 +77,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"username\": \"hkl\",\n    \"password\": 234\n}",
+					"raw": "{\n    \"username\": \"hkl3\",\n    \"password\": \"123\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -133,7 +133,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"name\": \"Advanced React JS\",\n    \"description\": \"Advanced React JS\",\n    \"credit\": 7,\n    \"endDate\": \"2025-06-30\",\n    \"startTime\": \"10:00:00\",\n    \"endTime\": \"12:00:00\",\n    \"slot\": 20,\n    \"countryCode\": \"MM\"\n}\n",
+					"raw": "{\n    \"countryCode\": \"US\",\n    \"countryName\": \"United State\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -141,14 +141,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/course/create",
+					"raw": "http://localhost:8080/country/create",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"course",
+						"country",
 						"create"
 					]
 				}
@@ -189,7 +189,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"name\": \"Java Basics\",\n    \"description\": \"Intro to Java\",\n    \"credit\": 3,\n    \"endDate\": \"2025-06-30\",\n    \"startTime\": \"13:00:00\",\n    \"endTime\": \"14:00:00\",\n    \"slot\": 10\n}\n",
+					"raw": "{\n  \"name\": \"Platinum Package\",\n  \"credit\": 50,\n  \"description\": \"Access to SIngapore classes\",\n  \"expiredDateCount\": 50,\n  \"countryCode\": \"MM\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -197,14 +197,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/course/create",
+					"raw": "http://localhost:8080/package/create",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"course",
+						"package",
 						"create"
 					]
 				}
@@ -253,7 +253,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/package/pruchase",
+					"raw": "http://localhost:8080/package/purchase",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -261,7 +261,7 @@
 					"port": "8080",
 					"path": [
 						"package",
-						"pruchase"
+						"purchase"
 					]
 				}
 			},
@@ -301,7 +301,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"name\": \"Advanced React JS\",\n    \"description\": \"Advanced React JS\",\n    \"credit\": 7,\n    \"endDate\": \"2025-06-30\",\n    \"startTime\": \"10:00:00\",\n    \"endTime\": \"12:00:00\",\n    \"slot\": 20,\n    \"countryCode\": \"MM\"\n}\n",
+					"raw": "{\n    \"name\": \"Java 101\",\n    \"description\": \"Java Basic\",\n    \"credit\": 5,\n    \"endDate\": \"2025-06-30\",\n    \"startTime\": \"07:00:00\",\n    \"endTime\": \"08:30:00\",\n    \"slot\": 0,\n    \"countryCode\": \"SG\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -309,7 +309,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/course/create",
+					"raw": "http://localhost:8080/course/creat",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -317,7 +317,7 @@
 					"port": "8080",
 					"path": [
 						"course",
-						"create"
+						"creat"
 					]
 				}
 			},
@@ -525,7 +525,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "",
+					"raw": "{\n    \"new_password\": \"234\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -533,15 +533,15 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/auth/logout",
+					"raw": "http://localhost:8080/user/change-password",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"auth",
-						"logout"
+						"user",
+						"change-password"
 					]
 				}
 			},
@@ -593,15 +593,15 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/user/profile",
+					"raw": "http://localhost:8080/course/all",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"user",
-						"profile"
+						"course",
+						"all"
 					]
 				}
 			},
@@ -623,7 +623,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/course/SG",
+					"raw": "http://localhost:8080/course/country/SG",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -631,6 +631,7 @@
 					"port": "8080",
 					"path": [
 						"course",
+						"country",
 						"SG"
 					]
 				}
@@ -653,15 +654,15 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/user/profile",
+					"raw": "http://localhost:8080/package/all",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"user",
-						"profile"
+						"package",
+						"all"
 					]
 				}
 			},
@@ -683,7 +684,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/course/12",
+					"raw": "http://localhost:8080/course/1",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -691,7 +692,7 @@
 					"port": "8080",
 					"path": [
 						"course",
-						"12"
+						"1"
 					]
 				}
 			},
