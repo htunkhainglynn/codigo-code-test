@@ -309,7 +309,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/course/creat",
+					"raw": "http://localhost:8080/course/create",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -317,7 +317,7 @@
 					"port": "8080",
 					"path": [
 						"course",
-						"creat"
+						"create"
 					]
 				}
 			},

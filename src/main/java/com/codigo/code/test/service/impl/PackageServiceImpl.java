@@ -156,7 +156,7 @@ public class PackageServiceImpl implements PackageService {
                         .expiredDateCount(packageEntity.getExpiredDateCount())
                         .countryCode(packageEntity.getCountry().getCountryCode())
                         .build())
-                .withMessage("Package created successfully")
+                .withMessage("Package purchase successfully")
                 .build();
     }
 }
